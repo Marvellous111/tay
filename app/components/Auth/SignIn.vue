@@ -3,6 +3,7 @@ import { X } from 'lucide-vue-next';
 import { signIn } from '../../../server/lib/auth-client';
 
 const stateStore = useStateStore()
+const router = useRouter()
 
 const changeAuth = (args: String) => {
   console.info(stateStore.authToastType)
