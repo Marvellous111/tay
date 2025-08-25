@@ -3,14 +3,14 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event);
 
   // Set up streaming response
-  setHeader(event, 'Content-Type', 'text/event-stream');
-  setHeader(event, 'Cache-Control', 'no-cache');
-  setHeader(event, 'Connection', 'keep-alive');
+  // setHeader(event, 'Content-Type', 'text/event-stream');
+  // setHeader(event, 'Cache-Control', 'no-cache');
+  // setHeader(event, 'Connection', 'keep-alive');
 
   try {
     console.log('HIT')
     // Make the request to the backend
-    const response = await $fetch('http://127.0.0.1:8000/postquery/', {
+    const response = await $fetch('https://tayend.onrender.com/postquery/', {
       method: 'POST',
       body,
       headers: {
@@ -47,7 +47,9 @@ export default defineEventHandler(async (event) => {
     //   await writer.write(new TextEncoder().encode(value));
     // }
 
-    return response;
+    console.log(response)
+
+    return response.data
   } catch (error) {
     console.error('Error in /api/query:', error);
     // const writer = new TransformStream().writable.getWriter();

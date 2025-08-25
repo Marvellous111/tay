@@ -12,7 +12,24 @@ const closeToast = () => {
   stateStore.showTaskToast()
 }
 
-const createTask = () => {}
+const isLoading = ref(false);
+
+const createTask = async () => {
+  try {
+    isLoading.value = true
+    const { postTask } = useTaskQuery();
+
+    const sendtask = await postTask(title.value, prompt.value, "marvellous111", weekday.value, timeOfDay.value) 
+    
+    isLoading.value = false
+    console.log(sendtask)
+    closeToast()
+  } catch(error) {
+    isLoading.value = false
+    console.log(error)
+  }
+
+}
 
 </script>
 
@@ -41,8 +58,9 @@ const createTask = () => {}
       <input type="text" class="geist-regular" v-model="weekday" />
     </div>
     <div class="button-wrapper">
-      <button class="send-button" @click="createTask">
-        <span class="geist-medium">Create task</span>
+      <button class="send-button" @click="createTask" :disabled="isLoading">
+        <span class="geist-medium" v-if="isLoading == false" >Create task</span>
+        <Loader v-if="isLoading" />
       </button>
     </div>
   </div>
@@ -62,6 +80,7 @@ const createTask = () => {}
   row-gap: 15px;
   align-items: center;
   justify-content: center;
+  @include responsive(mobile) {}
   .header {
     display: flex;
     width: stretch;
@@ -82,7 +101,7 @@ const createTask = () => {}
       border-radius: 50%;
       border: 0;
       outline: 0;
-      background: rgba(128, 128, 128, 0.5);
+      background: rgba(128, 128, 128, 0.2);
     }
   }
   .input-wrapper {
@@ -125,12 +144,14 @@ const createTask = () => {}
       outline: 0;
       background: #121212;
       height: 32px;
+      min-width: 150px;
       width: fit-content;
       border-radius: 20px;
       padding: 0px 20px;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: 0.3s ease;
       span {
         font-size: 15px;
         color: #FFFFFF;

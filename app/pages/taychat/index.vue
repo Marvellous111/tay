@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { ArrowUp, AudioLines, ChevronDown } from 'lucide-vue-next';
 import { sendQuery } from '~/composables/sendQuery';
+import { useSession } from '../../../server/lib/auth-client';
+
 // definePageMeta({
 //   layout: 'default'
 // })
@@ -10,6 +12,9 @@ useSeoMeta({
 })
 const chatStore = useChatStore();
 const { send, isStreaming, error } = useSendQuery();
+
+const gotten_session = useSession();
+console.info(gotten_session.value)
 
 const query_input = ref<string>('');
 const username = ref<string>('marvellous111'); // Default username, could be from auth
@@ -28,10 +33,54 @@ const handleSend = async () => {
   }
 };
 
+const isRecognizing = ref(false);
+
+// Web Speech API setup
+// const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+// console.log(SpeechRecognition)
+// const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+
+// if (recognition) {
+//   recognition.continuous = false;
+//   recognition.interimResults = false;
+//   recognition.lang = 'en-US';
+// }
+
 const voiceSend = () => {
-  console.log('Voice input not implemented yet');
-  // Add voice input logic here if needed
+  // if (!recognition) {
+  //   error.value = 'Speech Recognition API not supported in this browser';
+  //   return;
+  // }
+  // console.log(isRecognizing.value)
+  // if (isRecognizing.value) {
+  //   recognition.stop();
+  //   isRecognizing.value = false;
+  // } else {
+  //   recognition.start();
+  //   isRecognizing.value = true;
+  // }
 };
+
+// if (recognition) {
+//   recognition.onresult = (event) => {
+//     const transcript = event.results[0][0].transcript.trim();
+//     query_input.value = transcript;
+//     isRecognizing.value = false;
+//     if (transcript) {
+//       send(transcript, username.value); // Fixed from sendQuery
+//     }
+//   };
+
+//   recognition.onerror = (event) => {
+//     console.error('Speech recognition error:', event.error);
+//     error.value = `Speech recognition failed: ${event.error}`;
+//     isRecognizing.value = false;
+//   };
+
+//   recognition.onend = () => {
+//     isRecognizing.value = false;
+//   };
+// }
 
 // Auto-resize textarea
 const textarea = ref<HTMLTextAreaElement | null>(null);
@@ -60,16 +109,19 @@ const clear = () => {
         <div class="user" v-if="message.type === 'user'">
           <span class="geist-medium">{{ message.query }}</span>
         </div>
+        <div v-if="isError">An error occured</div>
         <div class="bot" v-if="message.type === 'bot'">
           <div v-for="(part, partIndex) in message.answer" :key="partIndex" class="part-wrapper">
-            <div v-if="part.type === 'PLAN'" class="plan-part">
-              <Step />
+            <div v-if="part.type === 'STEP'" class="plan-part">
+              <StepsStart :details="part.details" :category="part.category" />
             </div>
             <div v-if="part.type === 'CLARIFICATION'" class="clarification-part">
-              <ValueConfirmationClarification />
+              <ClarificationValueConfirmation v-if="part.details['category'] === 'Value Confirmation'"  />
+              <ClarificationInput v-if="part.details['category'] === 'Input'" />
+              <ClarificationAction v-if="part.details['category'] === 'Action'" />
             </div>
-            <div v-else-if="part.type === 'ANSWER'" class="answer-part">
-              {{ part.details }}
+            <div v-if="part.type === 'ANSWER'" class="answer-part geist-medium">
+              {{ part.details.final_output["summary"] }}
             </div>
           </div>
         </div>
@@ -86,13 +138,13 @@ const clear = () => {
             absoluteStrokeWidth
           />
         </div>
-        <button class="send-button" @click="voice_send" v-if="isWriting == false">
+        <button class="send-button black" :class="{ 'black': !isRecognizing, 'active-voice': isRecognizing }" @click="voiceSend" v-if="isWriting == false">
           <AudioLines
             :size="24"
             absoluteStrokeWidth
             class="button-icon" />
         </button>
-        <button class="send-button" @click="handleSend" v-if="isWriting" :disabled="isStreaming || query_input.length < 2">
+        <button class="send-button black" @click="handleSend" v-if="isWriting" :disabled="isStreaming || query_input.length < 2">
           <ArrowUp
             :size="24"
             absoluteStrokeWidth
@@ -105,6 +157,18 @@ const clear = () => {
 </template>
 
 <style lang="scss" scoped>
+.black {
+  background: #121212;
+  .button-icon {
+    color: #FFFFFF;
+  }
+}
+.active-voice {
+  background: rgba(128, 128, 128, 0.3);
+  .button-icon {
+    color: #121212;
+  }
+}
 .chat-container {
   width: stretch;
   height: stretch;
@@ -127,6 +191,7 @@ const clear = () => {
     row-gap: 20px;
     overflow: hidden;
     position: relative;
+    padding-bottom: 20%;
     .query-response {
       position: relative;
       display: flex;
@@ -231,13 +296,12 @@ const clear = () => {
         border: 0;
         width: 38px;
         height: 38px;
+        align-self: flex-end;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #121212;
         .button-icon {
-          color: #FFFFFF;
           transition: 0.2s ease-out;
         }
         transition: 0.1s ease-out;

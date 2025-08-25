@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 
 import { History, AudioLines, SquarePen, AlarmClockCheck, Box, ChevronsRight } from 'lucide-vue-next';
+import { signOut } from '../../server/lib/auth-client';
+
 
 const navBar = ref<HTMLElement|null>(null);
 const sideBarFeatures = ref<HTMLElement|null>(null);
@@ -62,6 +64,7 @@ const expandSideBar = () => {
 
   accountExpand.value.style.flexDirection="column";
   accountDetails.value.style.width="fit-content";
+  accountDetails.value.style.padding = "0px"
   accountName.value.style.opacity="0"
   accountName.value.style.visibility="hidden"
   accountName.value.style.display="none"
@@ -76,6 +79,17 @@ const expandSideBar = () => {
 
 const route = useRoute()
 const router = useRouter()
+
+
+const authSignOut = async() => {
+  await signOut({
+    fetchOptions: {
+      onSuccess: () => {
+        router.push("/");
+      },
+    },
+  });
+}
 
 const goto = (arg: string) => {
   router.push(arg)
@@ -129,8 +143,10 @@ const goto = (arg: string) => {
         </div> -->
       </div>
       <div class="account-expand" ref="accountExpand">
-        <div class="account-details" ref="accountDetails">
-          <div class="account-image" ref="accountImage"></div>
+        <div class="account-details" ref="accountDetails" @click="authSignOut">
+          <div class="account-image" ref="accountImage">
+            <span class="geist-semibold">M</span>
+          </div>
           <div class="account-name" ref="accountName">
             <span class="geist-regular">Marvellous111</span>
           </div>
@@ -192,14 +208,24 @@ const goto = (arg: string) => {
         display: flex;
         align-items: center;
         column-gap: 10px;
+        border-radius: 10px;
+        width: stretch;
+        padding: 5px 10px;
+        background: transparent;
+        transition: 0.3s ease;
         .account-image {
           border: 1px solid rgba(128, 128, 128, 0.5);
+          background: #121212;
           width: 40px;
           height: 40px;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
+          span {
+            font-size: 24px;
+            color: #FFFFFF;
+          }
         }
         .account-name {
           display: flex;
@@ -209,6 +235,12 @@ const goto = (arg: string) => {
             font-size: 16px;
           }
         }
+      }
+      .account-details:hover {
+        background: rgba(128, 128, 128, 0.3);
+      }
+      .account-details:active {
+        transform: scale(0.9);
       }
       .expand-button {
         display: flex;
@@ -224,6 +256,7 @@ const goto = (arg: string) => {
       .expand-button:hover {
         background: rgba(128, 128, 128, 0.3);
       }
+      
     }
   }
   .body {

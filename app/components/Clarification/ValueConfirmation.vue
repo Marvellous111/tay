@@ -1,11 +1,23 @@
 <script lang="ts" setup>
-import { ChevronDown } from 'lucide-vue-next';
+// import { ChevronDown } from 'lucide-vue-next';
 
 const props = defineProps({
-  task_input: {
+  user_guidance: {
     type: String
+  },
+  details: {
+    type: {}
   }
 })
+
+const sendBody = async (args: string) => {
+  try {
+    const { sendClarification } = useSendQuery()
+    const send_clarification = await sendClarification(props.details.id, props.details.category, args)
+  } catch(error) {
+    console.log(error)
+  }
+}
 
 </script>
 
@@ -14,18 +26,25 @@ const props = defineProps({
     <section class="top-section">
       <div class="loader-icon-wrapper">
         <div class="loader">
-          <img src="~/assets/images/docs.png" />
         </div>      
       </div>
-      <span class="geist-medium">Tay is requesting access to docs</span>
-    </section>
-    <section class="input-wrapper">
-      <input type="text" class="geist-medium" v-model="props.task_input" />
+      <span class="geist-medium">{{ props.details["user_guidance"] }}</span>
     </section>
     <section class="bottom-section">
+      <button class="action">
+        <span class="geist-medium">See action</span>
+        <!-- <ChevronDown
+          :size="13"
+          :stroke-width="1.5"
+          absoluteStrokeWidth
+        /> -->
+      </button>
       <div class="ad-button">
-        <button class="allow-button">
-          <span class="geist-medium">Submit</span>
+        <button class="allow-button" @click="sendBody('yes')">
+          <span class="geist-medium">Yes</span>
+        </button>
+        <button class="deny-button" @click="sendBody('no')">
+          <span class="geist-medium">No</span>
         </button>
       </div>
     </section>
@@ -35,6 +54,7 @@ const props = defineProps({
 
 <style lang="scss" scoped>
 .action-toast-wrapper {
+  animation: scaleFade 0.3s ease;
   display: flex;
   flex-direction: column;
   row-gap: 10px;
@@ -43,8 +63,7 @@ const props = defineProps({
   background: #FFFFFF;
   border: 1px solid rgba(128, 128, 128, 0.5);
   height: fit-content;
-  width: 400px;
-  max-width: 400px;
+  width: fit-content;
   .top-section {
     display: flex;
     width: stretch;
@@ -71,28 +90,12 @@ const props = defineProps({
       font-size: 18px;
     }
   }
-  .input-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: left;
-    input {
-      border: 1px solid rgba(128, 128, 128, 0.5);
-      border-radius: 7.5px;
-      height: 24px;
-      width: stretch;
-      background: #FAFAFA;
-      font-size: 16px;
-    }
-  }
   .bottom-section {
     display: flex;
-    width: stretch;
-    justify-content: right;
+    justify-content: space-between;
     align-items: center;
     .action {
-      border: 20px;
       height: 24px;
-      // border: 1px solid rgba(128, 128, 128, 0.5);
       width: fit-content;
       padding: 0px 7.5px;
       background: #FAFAFA;

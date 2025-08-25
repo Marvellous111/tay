@@ -3,7 +3,8 @@ export default defineEventHandler(async(event) => {
 
 
   try {
-    const response = $fetch("http://127.0.0.1:8000/create-task/", {
+    console.log("HIT TASK POST")
+    const response = await $fetch("https://tayend.onrender.com/create-task/", {
       method: 'POST',
       body: body,
       headers: {
@@ -11,9 +12,13 @@ export default defineEventHandler(async(event) => {
       },
     })
 
-    return response.data
+    console.log(response)
+
+    return response
+
   }catch(error) {
     console.error(`An error occurred in SERVER - TASKS`)
     console.error(error)
+    throw error
   }
 })

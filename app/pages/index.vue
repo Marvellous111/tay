@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 
 definePageMeta({
-  layout: 'none'
+  layout: ''
 })
 
 useSeoMeta({
@@ -12,14 +12,17 @@ const apps = [
   "Notion", "Gmail", "Google Calender", "Google Docs", "Slack"
 ]
 
+const stateStore = useStateStore();
+
 const connectWrapper = ref<HTMLElement|null>(null);
 const connectSpan = ref<HTMLElement|null>(null);
 const connectOption = ref<HTMLElement|null>(null);
 
-const expandToConnect = () => {
-  if (!connectWrapper) return
-  if (!connectSpan) return
-  if (!connectOption) return
+const isAuthToast = computed(() => stateStore.authToast)
+
+const openAuth = () => {
+  stateStore.changeAuthToast()
+  // alert(isAuthToast)
 }
 
 </script>
@@ -37,16 +40,12 @@ const expandToConnect = () => {
       Boost your productivity and tame your day with tay.
       Organise your busy day, schedule, plan and work on created actions tailored for you and many more.
     </p>
-    <div @click="expandToConnect" ref="connectWrapper" class="divbutton">
+    <button @click="openAuth" ref="connectWrapper" class="divbutton">
       <span class="geist-medium" ref="connectSpan">Start using tay</span>
-      <!-- <div class="connect-option" ref="connectOption">
-        <div class="app" v-for="app in apps" :key="app">
-          <span class="app-text geist-regular">{{ app }}</span>
-          <button class="app-button" @click="connectToApp(app)">
-            <span class="geist-medium">Connect</span>
-          </button>
-        </div>
-      </div> -->
+    </button>
+    <div class="auth-toast" ref="authToast" v-if="stateStore.authToast">
+      <AuthSignIn v-if="stateStore.authToastType === 'SIGNIN'" />
+      <AuthSignUp v-if="stateStore.authToastType === 'SIGNUP'" />
     </div>
     <img src="~/assets/images/Gradient.png" class="gradient" />
   </div>
@@ -126,6 +125,17 @@ const expandToConnect = () => {
     margin: 0;
     z-index: 10;
   }
+  .auth-toast {
+    display: flex;
+    position: absolute;
+    z-index: 30;
+    align-items: center;
+    justify-content: center;
+    width: stretch;
+    height: stretch;
+    background: rgba(128, 128, 128, 0.1);
+    transition: 0.5s ease;
+  }
   .divbutton {
     position: relative;
     z-index: 10;
@@ -142,50 +152,10 @@ const expandToConnect = () => {
     border: 0;
     outline: 0;
     border-radius: 40px;
-    transition: height 0.3s ease-in, width 0.3s ease-in, opacity 0.6s ease-in, visibility 0.6s ease-in;
+    transition: 0.3s ease-out;
     span {
       font-size: 16px;
       font-weight: normal;
-    }
-    .connect-option {
-      display: flex;
-      // visibility: hidden;
-      // opacity: 0;
-      flex-direction: column;
-      width: 250px;
-      height: 200px;
-      background: #FFFFFF;
-      border: 1px solid rgba(128, 128, 128, 0.5);
-      border-radius: 15px;
-      .app {
-        border-bottom: 1px solid rgba(128, 128, 128, 0.5);
-        height: 24px;
-        padding: 7.5px;
-        width: stretch;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        .app-text {
-          color: #121212;
-          font-size: 16px;
-        }
-        button {
-          display: flex;
-          align-items: center;
-          justify-items: center;
-          width: fit-content;
-          padding: 0px 10px;
-          border: 0;
-          outline: 0;
-          border-radius: 20px;
-          height: 28px;
-          background: #121212;
-          span {
-            color: #FFFFFF;
-            font-size: 15px;
-          } 
-        }
-      }
     }
   }
 }
