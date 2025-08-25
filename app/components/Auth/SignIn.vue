@@ -19,7 +19,7 @@ const username = ref("")
 const password = ref("")
 
 const authSignIn = async() => {
-  const { data, error } = await authClient.signIn.username({
+  const { data, error } = await signIn.username({
     username: username.value,
     password: password.value,
   }, {
