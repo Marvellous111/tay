@@ -113,13 +113,10 @@ const clear = () => {
         <div class="user" v-if="message.type === 'user'">
           <span class="geist-medium">{{ message.query }}</span>
         </div>
-        <div v-if="isError">
+        <div v-if="stateStore.isChatLoad">
           <LoadingMessage />
         </div>
         <div class="bot" v-if="message.type === 'bot'">
-          <div class="load-message" v-if="stateStore.isChatLoad">
-            <LoadingMessage />
-          </div>
           <div v-for="(part, partIndex) in message.answer" :key="partIndex" class="part-wrapper">
             <div v-if="part.type === 'STEP'" class="plan-part">
               <StepsStart :details="part.details" :category="part.category" />
