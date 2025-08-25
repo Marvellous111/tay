@@ -11,6 +11,7 @@ useSeoMeta({
   title: "Tay | Chat"
 })
 const chatStore = useChatStore();
+const stateStore = useStateStore();
 const { send, isStreaming, error } = useSendQuery();
 
 const gotten_session = useSession();
@@ -26,10 +27,13 @@ const handleSend = async () => {
     return;
   }
   try {
+    stateStore.changeChatLoad()
     await send(query_input.value, username.value);
     query_input.value = ''; // Clear input after sending
+    stateStore.changeChatLoad()
   } catch (err) {
     console.error('Error in client:', err);
+    stateStore.changeChatLoad()
   }
 };
 
@@ -109,8 +113,13 @@ const clear = () => {
         <div class="user" v-if="message.type === 'user'">
           <span class="geist-medium">{{ message.query }}</span>
         </div>
-        <div v-if="isError">An error occured</div>
+        <div v-if="isError">
+          <LoadingMessage />
+        </div>
         <div class="bot" v-if="message.type === 'bot'">
+          <div class="load-message" v-if="stateStore.isChatLoad">
+            <LoadingMessage />
+          </div>
           <div v-for="(part, partIndex) in message.answer" :key="partIndex" class="part-wrapper">
             <div v-if="part.type === 'STEP'" class="plan-part">
               <StepsStart :details="part.details" :category="part.category" />
@@ -122,6 +131,9 @@ const clear = () => {
             </div>
             <div v-if="part.type === 'ANSWER'" class="answer-part geist-medium">
               {{ part.details.final_output["summary"] }}
+            </div>
+            <div v-if="part.type === 'ERROR'" class="error-part geist-medium">
+              {{ part.details }}
             </div>
           </div>
         </div>
@@ -145,11 +157,12 @@ const clear = () => {
             class="button-icon" />
         </button>
         <button class="send-button black" @click="handleSend" v-if="isWriting" :disabled="isStreaming || query_input.length < 2">
-          <ArrowUp
+          <ArrowUp v-if="stateStore.isChatLoad == false"
             :size="24"
             absoluteStrokeWidth
             class="button-icon"
           />
+          <Loader v-if="stateStore.isChatLoad == true" />
         </button>
       </section>
     </div>
@@ -234,6 +247,10 @@ const clear = () => {
           row-gap: 10px;
           justify-content: left;
           align-items: start;
+        }
+        .load-message {
+          display: flex;
+          align-items: center;
         }
       }
     }

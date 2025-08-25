@@ -155,6 +155,11 @@ export const useSendQuery = () => {
     } catch (err) {
       error.value = 'Failed to send query';
       console.error('Error in sendQuery:', err);
+      const iter_dict = {
+        "type": "ERROR",
+        "details": "An error occurred, please try again"
+      }
+      chatStore.addBotResponsePart(iter_dict);
       isStreaming.value = false;
     } finally {
       isStreaming.value = false;

@@ -19,6 +19,12 @@ export const useStateStore = defineStore(
         authToastType.value = args
       }
     }
+    
+    const isChatLoad = ref(false)
+
+    function changeChatLoad() {
+      isChatLoad.value = !isChatLoad.value
+    }
 
     const taskToast = ref<boolean>(false)
 
@@ -35,7 +41,7 @@ export const useStateStore = defineStore(
     const getTasks  = computed(() => tasks.value)
 
     return { 
-      authToast,
+      authToast, isChatLoad, changeChatLoad,
       taskToast, showTaskToast,
       tasks, addTask, getTasks,
       authToastType, changeAuthToastType, changeAuthToast
