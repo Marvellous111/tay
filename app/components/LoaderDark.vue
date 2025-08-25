@@ -8,7 +8,7 @@
   width: 16px;
   aspect-ratio: 1;
   border-radius: 50%;
-  border: 3px solid #FFFFFF;
+  border: 3px solid #121212;
   animation:
     l20-1 0.8s infinite linear alternate,
     l20-2 1.6s infinite linear;
